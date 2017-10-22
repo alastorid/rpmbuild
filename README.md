@@ -57,6 +57,8 @@ sudo mv ./sp /usr/share/fonts/
 sudo fc-cache -f
 ````
 
+# perl stuff
+
 ````
 yum -y install perl-Sort-Versions perl-Font*
 ````
