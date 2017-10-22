@@ -54,7 +54,7 @@ mkdir -p $RPM_BUILD_ROOT%{_bindir}
 mkdir -p $RPM_BUILD_ROOT/%{_mandir}/man1
 make INSTALLROOT=$RPM_BUILD_ROOT install install_rdf
 install -d $RPM_BUILD_ROOT/%{_infodir}
-install -t $RPM_BUILD_ROOT/%{_infodir} doc/info/*
+install -t $RPM_BUILD_ROOT/%{_infodir} doc/html/*
 
 %post
 if [ -e %{_infodir}/nasm.info.gz ]; then
@@ -72,7 +72,7 @@ fi
 %{_bindir}/ndisasm
 %{_mandir}/man1/nasm*
 %{_mandir}/man1/ndisasm*
-%{_infodir}/nasm.info*.gz
+%{_infodir}/*.gz
 
 %files doc
 %doc doc/html doc/nasmdoc.txt.gz doc/nasmdoc.ps.gz
