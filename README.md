@@ -45,6 +45,15 @@ scl enable devtoolset-6 bash
 gcc --version
 ````
 
+## rpmbuild -bb says it needs more packages!!!
+
+````
+# install that packages like
+# sudo yum -y install `rpmbuild -bb SPEC_FILE |& sed '1d'|cut -d ' ' -f 1|sed 's/\t//'`
+sudo yum -y install `rpmbuild -bb ./SPECS/obs-studio.spec |& sed '1d'|cut -d ' ' -f 1|sed 's/\t//'`
+
+````
+
 ## nasm
 
 [SourceCode Pro font](https://www.fontsquirrel.com/fonts/source-sans-pro)
@@ -62,4 +71,8 @@ sudo fc-cache -f
 ````
 yum -y install perl-Sort-Versions perl-Font*
 ````
+
+# useful notes
+
+ - You need at least 2.13 of nasm to compile x264
 
