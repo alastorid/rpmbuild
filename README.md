@@ -7,7 +7,7 @@ Just a pile of rubbish.
 # useful tips
 
 
-## getting source
+## getting source tarball
 
 ````
 #spectool -g -R specfile
