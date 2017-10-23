@@ -1,8 +1,6 @@
 # rpmbuild
 
-Just a pile of rubbish.
-
-## Use at your own risk.
+ Use at your own risk.
 
 # useful tips
 
