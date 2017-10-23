@@ -8,13 +8,13 @@ Summary:        Movie player playing most video formats and DVDs
 License:        GPLv2+ or GPLv3+
 URL:            http://www.mplayerhq.hu/
 Source0:        http://www.mplayerhq.hu/MPlayer/releases/MPlayer-%{version}.tar.xz
-Source1:        http://www.mplayerhq.hu/MPlayer/skins/Blue-1.11.tar.bz2
+Source1:        http://www.mplayerhq.hu/MPlayer/skins/Blue-1.13.tar.bz2
 # set defaults for Fedora
 Patch1:         mplayer-config.patch
 # use system FFmpeg libraries and use roff include statements instead of symlinks
 #Patch:          mplayer-ffmpeg.patch
 # Include Samba
-#Patch2:         include-samba-4.0.patch
+Patch2:         include-samba-4.0.patch
 
 BuildRequires:  SDL-devel
 BuildRequires:  a52dec-devel
@@ -195,7 +195,7 @@ rm -rf ffmpeg
 %endif
 
 %patch1 -p2
-#%patch2 -p1
+%patch2 -p1
 # vdpau FIX
 sed -i '/\#include <strings.h>/a #include <vdpau/vdpau_x11.h>' libvo/vo_vdpau.c
 
