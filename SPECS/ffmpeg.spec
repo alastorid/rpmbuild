@@ -4,6 +4,9 @@
 #global date    20110612
 #global rel     rc1
 
+# quick sync
+%global _with_libmfx      1
+
 %if 0%{?rhel}
 %global _without_frei0r   1
 %global _without_vpx      1
@@ -221,7 +224,8 @@ This package contains development files for %{name}
     --enable-shared \\\
     --enable-gpl \\\
     --disable-debug \\\
-    --disable-stripping
+    --disable-stripping \\\
+    %{?_with_libmfx:--enable-libmfx  --enable-nonfree}
 
 #--enable-x11grab \\\
 # was deleted as legacy
