@@ -1,0 +1,12 @@
+diff -Naur ./mutter-3.22.3.old/src/core/display.c ./mutter-3.22.3/src/core/display.c
+--- ./mutter-3.22.3.old/src/core/display.c	2017-11-23 23:49:24.969306300 +0800
++++ ./mutter-3.22.3/src/core/display.c	2017-11-24 00:06:26.843306300 +0800
+@@ -2246,7 +2246,7 @@
+ {
+   MetaDisplay *display = window->display;
+   MetaPingData *ping_data;
+-
++return;
+   if (serial == 0)
+     {
+       meta_warning ("Tried to ping a window with a bad serial! Not allowed.\n");
