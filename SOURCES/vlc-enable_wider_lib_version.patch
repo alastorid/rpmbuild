@@ -1,0 +1,41 @@
+--- vlc-2.2.8.orig/configure.ac	2017-11-26 12:29:18.034306300 +0800
++++ vlc-2.2.8/configure.ac	2017-11-26 12:48:41.148306300 +0800
+@@ -2317,9 +2317,9 @@
+ [  --enable-avcodec        libavcodec codec (default enabled)])
+ AS_IF([test "${enable_avcodec}" != "no"], [
+   PKG_CHECK_MODULES(AVCODEC,[libavcodec >= 53.34.0 libavutil >= 51.22.0], [
+-    PKG_CHECK_EXISTS([libavutil < 55],, [
+-      AC_MSG_ERROR([libavutil versions 55 and later are not supported.])
+-    ])
++    #PKG_CHECK_EXISTS([libavutil < 55],, [
++    #  AC_MSG_ERROR([libavutil versions 55 and later are not supported.])
++    #])
+     VLC_SAVE_FLAGS
+     CPPFLAGS="${CPPFLAGS} ${AVCODEC_CFLAGS}"
+     CFLAGS="${CFLAGS} ${AVCODEC_CFLAGS}"
+@@ -2376,9 +2376,9 @@
+ AS_IF([test "${have_vaapi}" = "yes" -a "${have_avcodec}" = "yes"], [
+   case "${avfork}" in
+     ffmpeg)
+-      PKG_CHECK_EXISTS([libavcodec >= 57.10.100], [
+-        AC_MSG_ERROR([VA API requires FFmpeg libavcodec < 57.10 or libav.])
+-      ])
++      #PKG_CHECK_EXISTS([libavcodec >= 57.10.100], [
++      #  AC_MSG_ERROR([VA API requires FFmpeg libavcodec < 57.10 or libav.])
++      #])
+       ;;
+   esac
+   VLC_SAVE_FLAGS
+@@ -3174,9 +3174,9 @@
+   case "${avfork}" in
+     libav) av_vdpau_ver="55.26.0" ;;
+     ffmpeg) av_vdpau_ver="55.42.100"
+-      PKG_CHECK_EXISTS([libavcodec >= 57.10.100], [
+-        AC_MSG_ERROR([VDPAU requires FFmpeg libavcodec < 57.10 or libav.])
+-      ])
++      #PKG_CHECK_EXISTS([libavcodec >= 57.10.100], [
++      #  AC_MSG_ERROR([VDPAU requires FFmpeg libavcodec < 57.10 or libav.])
++      #])
+       ;;
+   esac
+   PKG_CHECK_EXISTS([libavutil >= 52.4.0 libavcodec >= ${av_vdpau_ver}], [

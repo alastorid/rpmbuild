@@ -1,0 +1,177 @@
+diff -Naur vlc-2.2.8.orig/modules/codec/avcodec/audio.c vlc-2.2.8/modules/codec/avcodec/audio.c
+--- vlc-2.2.8.orig/modules/codec/avcodec/audio.c	2017-11-26 12:29:18.010306300 +0800
++++ vlc-2.2.8/modules/codec/avcodec/audio.c	2017-11-26 13:25:14.392306300 +0800
+@@ -39,7 +39,6 @@
+ #include <libavcodec/avcodec.h>
+ #include <libavutil/mem.h>
+ 
+-#include <libavutil/audioconvert.h>
+ 
+ #include "avcodec.h"
+ 
+diff -Naur vlc-2.2.8.orig/modules/codec/avcodec/encoder.c vlc-2.2.8/modules/codec/avcodec/encoder.c
+--- vlc-2.2.8.orig/modules/codec/avcodec/encoder.c	2017-11-26 12:29:18.010306300 +0800
++++ vlc-2.2.8/modules/codec/avcodec/encoder.c	2017-11-26 13:29:25.855306300 +0800
+@@ -41,7 +41,6 @@
+ #include <vlc_cpu.h>
+ 
+ #include <libavcodec/avcodec.h>
+-#include <libavutil/audioconvert.h>
+ 
+ #include "avcodec.h"
+ #include "avcommon.h"
+@@ -311,7 +310,7 @@
+     else if( !GetFfmpegCodec( p_enc->fmt_out.i_codec, &i_cat, &i_codec_id,
+                              &psz_namecodec ) )
+     {
+-        if( FindFfmpegChroma( p_enc->fmt_out.i_codec ) == PIX_FMT_NONE )
++        if( FindFfmpegChroma( p_enc->fmt_out.i_codec ) == AV_PIX_FMT_NONE )
+             return VLC_EGENERIC; /* handed chroma output */
+ 
+         i_cat      = VIDEO_ES;
+@@ -555,7 +554,7 @@
+ 
+         if( p_codec->pix_fmts )
+         {
+-            const enum PixelFormat *p = p_codec->pix_fmts;
++            const enum AVPixelFormat *p = p_codec->pix_fmts;
+             for( ; *p != -1; p++ )
+             {
+                 if( *p == p_context->pix_fmt ) break;
+@@ -1017,7 +1016,7 @@
+         }
+     }
+ 
+-    p_sys->frame = avcodec_alloc_frame();
++    p_sys->frame = av_frame_alloc();
+     if( !p_sys->frame )
+     {
+         goto error;
+@@ -1088,7 +1087,7 @@
+     AVFrame *frame = NULL;
+     if( likely(p_pict) ) {
+         frame = p_sys->frame;
+-        avcodec_get_frame_defaults( frame );
++        av_frame_unref( frame );
+         for( i_plane = 0; i_plane < p_pict->i_planes; i_plane++ )
+         {
+             p_sys->frame->data[i_plane] = p_pict->p[i_plane].p_pixels;
+@@ -1329,7 +1328,7 @@
+     //How much we need to copy from new packet
+     const int leftover = leftover_samples * p_sys->p_context->channels * p_sys->i_sample_bytes;
+ 
+-    avcodec_get_frame_defaults( p_sys->frame );
++    av_frame_unref( p_sys->frame );
+     p_sys->frame->format     = p_sys->p_context->sample_fmt;
+     p_sys->frame->nb_samples = leftover_samples + p_sys->i_samples_delay;
+ 
+@@ -1451,7 +1450,7 @@
+     while( ( p_aout_buf->i_nb_samples >= p_sys->i_frame_size ) ||
+            ( p_sys->b_variable && p_aout_buf->i_nb_samples ) )
+     {
+-        avcodec_get_frame_defaults( p_sys->frame );
++        av_frame_unref( p_sys->frame );
+         if( p_sys->b_variable )
+             p_sys->frame->nb_samples = p_aout_buf->i_nb_samples;
+         else
+diff -Naur vlc-2.2.8.orig/modules/codec/avcodec/vaapi.c vlc-2.2.8/modules/codec/avcodec/vaapi.c
+--- vlc-2.2.8.orig/modules/codec/avcodec/vaapi.c	2017-11-26 12:29:18.010306300 +0800
++++ vlc-2.2.8/modules/codec/avcodec/vaapi.c	2017-11-26 13:25:14.403306300 +0800
+@@ -595,7 +595,7 @@
+         return err;
+ 
+     /* Only VLD supported */
+-    p_va->pix_fmt = PIX_FMT_VAAPI_VLD;
++    p_va->pix_fmt = AV_PIX_FMT_VAAPI_VLD;
+     p_va->setup = Setup;
+     p_va->get = Get;
+     p_va->release = Release;
+diff -Naur vlc-2.2.8.orig/modules/codec/avcodec/vda.c vlc-2.2.8/modules/codec/avcodec/vda.c
+--- vlc-2.2.8.orig/modules/codec/avcodec/vda.c	2017-11-26 12:29:18.010306300 +0800
++++ vlc-2.2.8/modules/codec/avcodec/vda.c	2017-11-26 13:25:14.404306300 +0800
+@@ -162,7 +162,7 @@
+ 
+     ff_vda_destroy_decoder( &p_va->hw_ctx ) ;
+ 
+-    if( p_va->hw_ctx.cv_pix_fmt_type == kCVPixelFormatType_420YpCbCr8Planar )
++    if( p_va->hw_ctx.cv_pix_fmt_type == kCVAVPixelFormatType_420YpCbCr8Planar )
+         CopyCleanCache( &p_va->image_cache );
+ 
+     free( p_va );
+@@ -197,13 +197,13 @@
+     switch( i_pix_fmt )
+     {
+         case 1 :
+-            p_va->hw_ctx.cv_pix_fmt_type = kCVPixelFormatType_422YpCbCr8;
++            p_va->hw_ctx.cv_pix_fmt_type = kCVAVPixelFormatType_422YpCbCr8;
+             p_va->i_chroma = VLC_CODEC_UYVY;
+             msg_Dbg(p_va->p_log, "using pixel format 422YpCbCr8");
+             break;
+         case 0 :
+         default :
+-            p_va->hw_ctx.cv_pix_fmt_type = kCVPixelFormatType_420YpCbCr8Planar;
++            p_va->hw_ctx.cv_pix_fmt_type = kCVAVPixelFormatType_420YpCbCr8Planar;
+             p_va->i_chroma = VLC_CODEC_I420;
+             CopyInitCache( &p_va->image_cache, i_width );
+             msg_Dbg(p_va->p_log, "using pixel format 420YpCbCr8Planar");
+@@ -286,7 +286,7 @@
+         return VLC_EGENERIC;
+     }
+ 
+-    if( p_va->hw_ctx.cv_pix_fmt_type == kCVPixelFormatType_420YpCbCr8Planar )
++    if( p_va->hw_ctx.cv_pix_fmt_type == kCVAVPixelFormatType_420YpCbCr8Planar )
+     {
+         if( !p_va->image_cache.buffer ) {
+             CVPixelBufferRelease( cv_buffer );
+diff -Naur vlc-2.2.8.orig/modules/codec/avcodec/video.c vlc-2.2.8/modules/codec/avcodec/video.c
+--- vlc-2.2.8.orig/modules/codec/avcodec/video.c	2017-11-26 12:29:18.010306300 +0800
++++ vlc-2.2.8/modules/codec/avcodec/video.c	2017-11-26 13:25:14.407306300 +0800
+@@ -108,8 +108,8 @@
+ static int  ffmpeg_GetFrameBuf    ( struct AVCodecContext *, AVFrame * );
+ static void ffmpeg_ReleaseFrameBuf( struct AVCodecContext *, AVFrame * );
+ #endif
+-static enum PixelFormat ffmpeg_GetFormat( AVCodecContext *,
+-                                          const enum PixelFormat * );
++static enum AVPixelFormat ffmpeg_GetFormat( AVCodecContext *,
++                                          const enum AVPixelFormat * );
+ 
+ static uint32_t ffmpeg_CodecTag( vlc_fourcc_t fcc )
+ {
+@@ -236,7 +236,7 @@
+     p_sys->p_codec = p_codec;
+     p_sys->i_codec_id = i_codec_id;
+     p_sys->psz_namecodec = psz_namecodec;
+-    p_sys->p_ff_pic = avcodec_alloc_frame();
++    p_sys->p_ff_pic = av_frame_alloc();
+     p_sys->b_delayed_open = true;
+     p_sys->p_va = NULL;
+     vlc_sem_init( &p_sys->sem_mt, 0 );
+@@ -448,7 +448,7 @@
+     if( ffmpeg_OpenCodec( p_dec ) < 0 )
+     {
+         msg_Err( p_dec, "cannot open codec (%s)", p_sys->psz_namecodec );
+-        avcodec_free_frame( &p_sys->p_ff_pic );
++        av_frame_free( &p_sys->p_ff_pic );
+         vlc_sem_destroy( &p_sys->sem_mt );
+         free( p_sys );
+         return VLC_EGENERIC;
+@@ -849,7 +849,7 @@
+     wait_mt( p_sys );
+ 
+     if( p_sys->p_ff_pic )
+-        avcodec_free_frame( &p_sys->p_ff_pic );
++        av_frame_free( &p_sys->p_ff_pic );
+ 
+     if( p_sys->p_va )
+         vlc_va_Delete( p_sys->p_va );
+@@ -1336,8 +1336,8 @@
+ }
+ #endif
+ 
+-static enum PixelFormat ffmpeg_GetFormat( AVCodecContext *p_context,
+-                                          const enum PixelFormat *pi_fmt )
++static enum AVPixelFormat ffmpeg_GetFormat( AVCodecContext *p_context,
++                                          const enum AVPixelFormat *pi_fmt )
+ {
+     decoder_t *p_dec = p_context->opaque;
+     decoder_sys_t *p_sys = p_dec->p_sys;
