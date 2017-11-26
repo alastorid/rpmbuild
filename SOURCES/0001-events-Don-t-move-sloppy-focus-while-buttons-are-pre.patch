@@ -1,0 +1,42 @@
+From def9c7e2cb32d8aeb7c48f126a43e2ff97fe14e2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Thu, 21 Jul 2016 15:43:12 +0200
+Subject: [PATCH] events: Don't move (sloppy) focus while buttons are pressed
+
+(https://bugzilla.redhat.com/show_bug.cgi?id=1358535)
+---
+ src/x11/events.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/src/x11/events.c b/src/x11/events.c
+index 98f5f03a9..b763af312 100644
+--- a/src/x11/events.c
++++ b/src/x11/events.c
+@@ -830,6 +830,16 @@ crossing_serial_is_ignored (MetaDisplay  *display,
+ }
+ 
+ static gboolean
++event_has_button_mask (XIEnterEvent *enter_event)
++{
++  int i;
++  for (i = 0; i < enter_event->buttons.mask_len; i++)
++    if (enter_event->buttons.mask[i] != '\0')
++      return TRUE;
++  return FALSE;
++}
++
++static gboolean
+ handle_input_xevent (MetaDisplay  *display,
+                      XIEvent      *input_event,
+                      unsigned long serial)
+@@ -870,6 +880,7 @@ handle_input_xevent (MetaDisplay  *display,
+        * avoid races.
+        */
+       if (window && !crossing_serial_is_ignored (display, serial) &&
++          !event_has_button_mask (enter_event) &&
+           enter_event->mode != XINotifyGrab &&
+           enter_event->mode != XINotifyUngrab &&
+           enter_event->detail != XINotifyInferior &&
+-- 
+2.12.0
+

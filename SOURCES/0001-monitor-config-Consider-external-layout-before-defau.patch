@@ -1,0 +1,127 @@
+From d2cc8089a6fd31e302b23ac787d84ff5a3257b6c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Thu, 28 Jan 2016 15:26:33 +0100
+Subject: [PATCH] monitor-config: Consider external layout before default
+ linear config
+
+In case of no existing configuration, we use a default layout of
+aligning attached displays horizontally. This sidesteps any layout
+configuration that is done externally, for instance via xorg.conf,
+which is not desirable. Instead, base the initial configuration on
+the existing layout if it passes some sanity checks before falling
+back to the default linear config.
+---
+ src/backends/meta-monitor-config.c | 76 +++++++++++++++++++++++++++++---------
+ 1 file changed, 59 insertions(+), 17 deletions(-)
+
+diff --git a/src/backends/meta-monitor-config.c b/src/backends/meta-monitor-config.c
+index 21e3126f2..492b0ffe1 100644
+--- a/src/backends/meta-monitor-config.c
++++ b/src/backends/meta-monitor-config.c
+@@ -1130,6 +1130,23 @@ init_config_from_preferred_mode (MetaOutputConfig *config,
+   config->is_presentation = FALSE;
+ }
+ 
++static void
++init_config_from_output (MetaOutputConfig *config,
++                         MetaOutput       *output)
++{
++  config->enabled = (output->crtc != NULL);
++
++  if (!config->enabled)
++    return;
++
++  config->rect = output->crtc->rect;
++  config->refresh_rate = output->crtc->current_mode->refresh_rate;
++  config->transform = output->crtc->transform;
++  config->is_primary = output->is_primary;
++  config->is_presentation = output->is_presentation;
++  config->is_underscanning = output->is_underscanning;
++}
++
+ /* This function handles configuring the outputs when the driver provides a
+  * suggested layout position for each output. This is done in recent versions
+  * of qxl and allows displays to be aligned on the guest in the same order as
+@@ -1368,6 +1385,45 @@ extend_stored_config (MetaMonitorConfig *self,
+   return FALSE;
+ }
+ 
++static gboolean
++make_initial_config_from_current (MetaMonitorConfig *self,
++                                  MetaOutput        *outputs,
++                                  unsigned           n_outputs,
++                                  int                max_width,
++                                  int                max_height,
++                                  MetaConfiguration *config)
++{
++  GList *region = NULL;
++  unsigned i;
++
++  g_return_val_if_fail (config != NULL, FALSE);
++
++  if (g_hash_table_size (self->configs) > 0)
++    return FALSE;
++
++  g_assert (config->n_outputs == n_outputs);
++
++  for (i = 0; i < n_outputs; i++)
++    {
++      init_config_from_output (&config->outputs[i], &outputs[i]);
++
++      /* Reject the configuration if the suggested positions result in
++       * overlapping displays */
++      if (meta_rectangle_overlaps_with_region (region, &config->outputs[i].rect))
++        {
++          g_warning ("Overlapping outputs, rejecting suggested configuration");
++          g_list_free (region);
++          return FALSE;
++        }
++
++      region = g_list_prepend (region, &config->outputs[i].rect);
++    }
++
++  g_list_free (region);
++
++  return TRUE;
++}
++
+ static MetaConfiguration *
+ make_default_config (MetaMonitorConfig *self,
+                      MetaOutput        *outputs,
+@@ -1399,6 +1455,9 @@ make_default_config (MetaMonitorConfig *self,
+       extend_stored_config (self, outputs, n_outputs, max_width, max_height, ret))
+       goto check_limits;
+ 
++  if (make_initial_config_from_current (self, outputs, n_outputs, max_width, max_height, ret))
++      goto check_limits;
++
+   make_linear_config (self, outputs, n_outputs, max_width, max_height, ret);
+ 
+ check_limits:
+@@ -1500,23 +1559,6 @@ meta_monitor_config_make_default (MetaMonitorConfig  *self,
+     }
+ }
+ 
+-static void
+-init_config_from_output (MetaOutputConfig *config,
+-                         MetaOutput       *output)
+-{
+-  config->enabled = (output->crtc != NULL);
+-
+-  if (!config->enabled)
+-    return;
+-
+-  config->rect = output->crtc->rect;
+-  config->refresh_rate = output->crtc->current_mode->refresh_rate;
+-  config->transform = output->crtc->transform;
+-  config->is_primary = output->is_primary;
+-  config->is_presentation = output->is_presentation;
+-  config->is_underscanning = output->is_underscanning;
+-}
+-
+ void
+ meta_monitor_config_update_current (MetaMonitorConfig  *self,
+                                     MetaMonitorManager *manager)
+-- 
+2.12.0
+

@@ -1,0 +1,32 @@
+From 91dced2ea5e4317c0067df28071c7694fb2f35ac Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Fri, 17 Feb 2017 14:24:38 +0100
+Subject: [PATCH] display: Check we have a screen before freeing it
+
+The reason for the display to be closed may be meta_screen_new()
+returning NULL, in which case we don't have a screen to free.
+Avoid a segfault on exit by adding a proper check.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=778831
+---
+ src/core/display.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/core/display.c b/src/core/display.c
+index 42a530f6c..c6248ce34 100644
+--- a/src/core/display.c
++++ b/src/core/display.c
+@@ -1113,7 +1113,9 @@ meta_display_close (MetaDisplay *display,
+   meta_display_free_events_x11 (display);
+   meta_display_free_events (display);
+ 
+-  meta_screen_free (display->screen, timestamp);
++  if (display->screen)
++    meta_screen_free (display->screen, timestamp);
++  display->screen = NULL;
+ 
+   /* Must be after all calls to meta_window_unmanage() since they
+    * unregister windows
+-- 
+2.12.0
+

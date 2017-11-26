@@ -1,0 +1,41 @@
+From fd41db64169f6e0b36d56e054967cb406e32fa74 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Mon, 26 Jun 2017 17:56:36 +0200
+Subject: [PATCH] screen: Remove stray assert
+
+When the number of (static) workspaces decreases, we relocate windows
+from extra workspaces before removing them. As removing a non-empty
+workspace is not allowed, we assert that it doesn't contain any windows
+before removing it.
+
+However that assert is
+
+ - pointless, because meta_workspace_remove() already asserts that
+   the workspace is empty
+
+ - wrong, because even empty workspaces contain windows that are set
+   to show on all workspaces
+
+Simply drop the assert to avoid a crash when trying to remove a workspace
+while on-all-workspaces windows are present.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=784223
+---
+ src/core/screen.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/src/core/screen.c b/src/core/screen.c
+index d6b5eac53..c6aa9e194 100644
+--- a/src/core/screen.c
++++ b/src/core/screen.c
+@@ -1260,7 +1260,6 @@ update_num_workspaces (MetaScreen *screen,
+     {
+       MetaWorkspace *w = l->data;
+ 
+-      g_assert (w->windows == NULL);
+       meta_workspace_remove (w);
+     }
+ 
+-- 
+2.13.0
+

@@ -1,0 +1,60 @@
+From 257c8e8d3b7103973dfdc2665d210c63496be457 Mon Sep 17 00:00:00 2001
+From: Rui Matos <tiagomatos@gmail.com>
+Date: Tue, 6 Oct 2015 21:16:18 +0200
+Subject: [PATCH] monitor-manager-xrandr: Work around spurious hotplugs on Xvnc
+
+Xvnc turns its outputs off/on on every mode set which makes us believe
+there was an hotplug when there actually wasn't. Work around this by
+requiring new randr configuration timestamps to be ahead of the last
+set timestamp by at least 100 ms for us to consider them an actual
+hotplug.
+---
+ src/backends/x11/meta-monitor-manager-xrandr.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/src/backends/x11/meta-monitor-manager-xrandr.c b/src/backends/x11/meta-monitor-manager-xrandr.c
+index b82120af9..4a27b3a14 100644
+--- a/src/backends/x11/meta-monitor-manager-xrandr.c
++++ b/src/backends/x11/meta-monitor-manager-xrandr.c
+@@ -1484,12 +1484,25 @@ meta_monitor_manager_xrandr_class_init (MetaMonitorManagerXrandrClass *klass)
+ #endif
+ }
+ 
++static gboolean
++is_xvnc (MetaMonitorManager *manager)
++{
++  unsigned int i;
++
++  for (i = 0; i < manager->n_outputs; ++i)
++    if (g_str_has_prefix (manager->outputs[i].name, "VNC-"))
++      return TRUE;
++
++  return FALSE;
++}
++
+ gboolean
+ meta_monitor_manager_xrandr_handle_xevent (MetaMonitorManagerXrandr *manager_xrandr,
+ 					   XEvent                   *event)
+ {
+   MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_xrandr);
+   gboolean hotplug;
++  unsigned int timestamp;
+ 
+   if ((event->type - manager_xrandr->rr_event_base) != RRScreenChangeNotify)
+     return FALSE;
+@@ -1498,7 +1511,11 @@ meta_monitor_manager_xrandr_handle_xevent (MetaMonitorManagerXrandr *manager_xra
+ 
+   meta_monitor_manager_read_current_config (manager);
+ 
+-  hotplug = manager_xrandr->resources->timestamp < manager_xrandr->resources->configTimestamp;
++  timestamp = manager_xrandr->resources->timestamp;
++  if (is_xvnc (manager))
++    timestamp += 100;
++
++  hotplug = timestamp < manager_xrandr->resources->configTimestamp;
+   if (hotplug)
+     {
+       /* This is a hotplug event, so go ahead and build a new configuration. */
+-- 
+2.12.0
+

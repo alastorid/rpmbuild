@@ -1,0 +1,31 @@
+From 59eb6a6ff7d6356213db1ea22616315c215ae4a1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Fri, 28 Apr 2017 17:12:40 +0200
+Subject: [PATCH] cally: Fix translation to screen coordinates
+
+Due to an accidental swap of an else statement and a preprocessor #else,
+the output x coordinate is currently only set when not using the X11
+windowing system, whoops.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=781902
+---
+ clutter/clutter/cally/cally-actor.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/clutter/clutter/cally/cally-actor.c b/clutter/clutter/cally/cally-actor.c
+index fe3e27433..8ff5b09e1 100644
+--- a/clutter/clutter/cally/cally-actor.c
++++ b/clutter/clutter/cally/cally-actor.c
+@@ -780,8 +780,8 @@ _cally_actor_get_top_level_origin (ClutterActor *actor,
+         g_warning ("[x11] We were not able to get proper absolute "
+                    "position of the stage");
+     }
+-  else
+ #else
++  else
+     {
+       static gboolean yet_warned = FALSE;
+ 
+-- 
+2.12.2
+

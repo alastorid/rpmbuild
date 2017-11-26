@@ -1,0 +1,25 @@
+From e19b0723e829a102f930af735c9ff6d08ec9232f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Fri, 17 Mar 2017 16:44:11 +0100
+Subject: [PATCH] build: Lower automake requirement
+
+---
+ cogl/configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cogl/configure.ac b/cogl/configure.ac
+index 3ed761c57..1b259af58 100644
+--- a/cogl/configure.ac
++++ b/cogl/configure.ac
+@@ -113,7 +113,7 @@ AC_SUBST([WAYLAND_SERVER_REQ_VERSION], [wayland_server_req_version])
+ # want to know if the user specified custom cflags or not.
+ cflags_set=${CFLAGS+set}
+ 
+-AM_INIT_AUTOMAKE([1.14 foreign -Wno-portability no-define no-dist-gzip dist-xz tar-ustar subdir-objects])
++AM_INIT_AUTOMAKE([1.11 foreign -Wno-portability no-define no-dist-gzip dist-xz tar-ustar])
+ AM_SILENT_RULES([yes])
+ 
+ AH_BOTTOM([#include "config-custom.h"])
+-- 
+2.12.0
+
