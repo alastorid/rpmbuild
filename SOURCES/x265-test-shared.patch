@@ -1,0 +1,12 @@
+diff -Naur x265_v2.6.old/source/test/CMakeLists.txt x265_v2.6/source/test/CMakeLists.txt
+--- x265_v2.6.old/source/test/CMakeLists.txt	2017-12-22 16:16:17.380588000 +0800
++++ x265_v2.6/source/test/CMakeLists.txt	2017-12-22 16:16:57.183588000 +0800
+@@ -44,7 +44,7 @@
+     ipfilterharness.cpp ipfilterharness.h
+     intrapredharness.cpp intrapredharness.h)
+ 
+-target_link_libraries(TestBench x265-static ${PLATFORM_LIBS})
++target_link_libraries(TestBench x265-shared ${PLATFORM_LIBS})
+ if(LINKER_OPTIONS)
+     if(EXTRA_LIB)
+         list(APPEND LINKER_OPTIONS "-L..")
