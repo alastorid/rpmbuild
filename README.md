@@ -64,6 +64,10 @@ sudo mv ./sp /usr/share/fonts/
 sudo fc-cache -f
 ````
 
+### libarchive-devel 
+ 
+libarchive-devel is in rhel-7-server-optional-rpms which is disabled by default.
+
 # perl stuff
 
 ````
