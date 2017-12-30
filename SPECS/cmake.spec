@@ -13,7 +13,7 @@
 
 Name:           cmake
 Version:        3.10.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Cross-platform make system
 
 Group:          Development/Tools
@@ -26,46 +26,46 @@ URL:            http://www.cmake.org
 Source0:        http://www.cmake.org/files/v3.10/cmake-%{version}%{?rcver}.tar.gz
 Source2:        macros.cmake
 # Patch to find DCMTK in Fedora (bug #720140)
-Patch0:         cmake-dcmtk.patch
+#Patch0:         cmake-dcmtk.patch
 # Patch to fix RindRuby vendor settings
 # http://public.kitware.com/Bug/view.php?id=12965
 # https://bugzilla.redhat.com/show_bug.cgi?id=822796
 # Patch to use ninja-build instead of ninja (renamed in Fedora)
 # https://bugzilla.redhat.com/show_bug.cgi?id=886184
-Patch1:         cmake-ninja.patch
-Patch2:         cmake-findruby.patch
+#Patch1:         cmake-ninja.patch
+#Patch2:         cmake-findruby.patch
 # Patch to fix FindPostgreSQL
 # https://bugzilla.redhat.com/show_bug.cgi?id=828467
 # http://public.kitware.com/Bug/view.php?id=13378
-Patch3:         cmake-FindPostgreSQL.patch
+#Patch3:         cmake-FindPostgreSQL.patch
 # Patch FindImageMagick.cmake for newer ImageMagick versions
 # http://public.kitware.com/Bug/view.php?id=14012
-Patch4:         cmake-2.8.12.2-IM_pkgconfig_hints.patch
+#Patch4:         cmake-2.8.12.2-IM_pkgconfig_hints.patch
 # Add FindLua52.cmake
-Patch5:		cmake-2.8.11-rc4-lua-5.2.patch
+#Patch5:		cmake-2.8.11-rc4-lua-5.2.patch
 # Fix strict aliasing problems in cm_sha2.c
-Patch6:         cmake-strict_aliasing.patch
+#Patch6:         cmake-strict_aliasing.patch
 # Desktop icon filenames should be without extension
-Patch7:         cmake-desktop_icon.patch
+#Patch7:         cmake-desktop_icon.patch
 # FindJNI: Add ppc64le architecture
-Patch8:         cmake-FindJNI.patch
+#Patch8:         cmake-FindJNI.patch
 # # Fix issue with finding consistent python versions
 # http://public.kitware.com/Bug/view.php?id=13794
 # https://bugzilla.redhat.com/show_bug.cgi?id=876118
-Patch9:         cmake-FindPythonLibs-1.patch
+#Patch9:         cmake-FindPythonLibs-1.patch
 # BZ 1246369 add support for python version 3.4 
-Patch10:        cmake-FindPythonLibs-2.patch
+#Patch10:        cmake-FindPythonLibs-2.patch
 # Upstream patch to find Boost MPI library
 # http://www.cmake.org/Bug/view.php?id=14739
 # https://bugzilla.redhat.com/show_bug.cgi?id=756141
-Patch11:        cmake-boostmpi.patch
+#Patch11:        cmake-boostmpi.patch
 # Fix FindFreetype for 2.5.1+
 # http://public.kitware.com/Bug/view.php?id=14601
-Patch12:         cmake-FindFreetype.patch
+#Patch12:         cmake-FindFreetype.patch
 # Remove automatic Qt module dep adding
-Patch13:         cmake-qtdeps.patch
+#Patch13:         cmake-qtdeps.patch
 # BZ 1192188 Don't fail if certain Qt modules are unavailable.
-Patch14:         cmake-fix-mingw32-builds-of-Qt4.patch
+#Patch14:         cmake-fix-mingw32-builds-of-Qt4.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -193,7 +193,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{rpm_macros_dir}/macros.cmake
 %{_docdir}/%{name}-%{version}/
 %if %{with gui}
-%exclude %{_docdir}/%{name}-%{version}/cmake-gui.*
+%exclude %{_datadir}/applications/cmake-gui.desktop
 %endif
 %{_bindir}/ccmake
 %{_bindir}/cmake
@@ -201,27 +201,28 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_bindir}/ctest
 %{_datadir}/aclocal/cmake.m4
 %{_datadir}/%{name}/
-%{_mandir}/man1/ccmake.1.gz
-%{_mandir}/man1/cmake.1.gz
-%{_mandir}/man1/cmakecommands.1.gz
-%{_mandir}/man1/cmakecompat.1.gz
-%{_mandir}/man1/cmakemodules.1.gz
-%{_mandir}/man1/cmakepolicies.1.gz
-%{_mandir}/man1/cmakeprops.1.gz
-%{_mandir}/man1/cmakevars.1.gz
-%{_mandir}/man1/cpack.1.gz
-%{_mandir}/man1/ctest.1.gz
+#%{_mandir}/man1/ccmake.1.gz
+#%{_mandir}/man1/cmake.1.gz
+#%{_mandir}/man1/cmakecommands.1.gz
+#%{_mandir}/man1/cmakecompat.1.gz
+#%{_mandir}/man1/cmakemodules.1.gz
+#%{_mandir}/man1/cmakepolicies.1.gz
+#%{_mandir}/man1/cmakeprops.1.gz
+#%{_mandir}/man1/cmakevars.1.gz
+#%{_mandir}/man1/cpack.1.gz
+#%{_mandir}/man1/ctest.1.gz
 %{_emacs_sitelispdir}/%{name}
 %{_libdir}/%{name}/
 
 %if %{with gui}
 %files gui
-%{_docdir}/%{name}-%{version}/cmake-gui.*
+%{_datadir}/applications/cmake-gui.desktop
 %{_bindir}/cmake-gui
-%{_datadir}/applications/CMake.desktop
+#%{_datadir}/applications/CMake.desktop
 %{_datadir}/mime/packages/cmakecache.xml
-%{_datadir}/pixmaps/CMakeSetup32.png
-%{_mandir}/man1/cmake-gui.1.gz
+%{_datadir}/icons/hicolor/32x32/apps/CMakeSetup.png
+%{_datadir}/icons/hicolor/128x128/apps/CMakeSetup.png
+#%{_mandir}/man1/cmake-gui.1.gz
 %endif
 
 
