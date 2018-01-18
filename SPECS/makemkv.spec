@@ -12,17 +12,17 @@
 
 Summary:        DVD and Blu-ray to MKV converter and network streamer
 Name:           makemkv
-Version:        1.10.8
-Release:        2%{?dist}
+Version:        1.10.9
+Release:        1%{?dist}
 License:        GuinpinSoft inc and Mozilla Public License Version 1.1 and LGPLv2.1+
 URL:            http://www.%{name}.com/
 ExclusiveArch:  %{ix86} x86_64
 
 Source0:        http://www.%{name}.com/download/%{name}-oss-%{version}.tar.gz
 Source1:        http://www.%{name}.com/download/%{name}-bin-%{version}.tar.gz
-Source2:        %{name}-changelog.txt
+#Source2:        %{name}-changelog.txt
 
-#Patch0:         %{name}-oss-no-strip.patch
+Patch0:         %{name}-int64c.patch
 
 BuildRequires:  desktop-file-utils
 BuildRequires:  expat-devel
@@ -67,10 +67,10 @@ This package contains the DTS decoder command line tool.
 
 %prep
 %setup -q -T -c -n %{name}-%{version} -b 0 -b 1
+%patch0 -p1
 pushd %{name}-oss-%{version}
-#%patch0 -p1
 popd
-cp %{SOURCE2} .
+#cp %{SOURCE2} .
 
 %build
 # Accept eula  
@@ -116,7 +116,7 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %files
 %doc %{name}-bin-%{version}/src/eula_en_linux.txt
 %doc %{name}-oss-%{version}/License.txt
-%doc %{name}-changelog.txt
+#%doc %{name}-changelog.txt
 %config(noreplace) %{_sysconfdir}/profile.d/%{name}.*sh
 %{_bindir}/makemkv
 %{_bindir}/makemkvcon

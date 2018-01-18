@@ -1,0 +1,18 @@
+diff -rua makemkv-1.10.9.old/makemkv-oss-1.10.9/libffabi/src/dcadec/fixed_math.h makemkv-1.10.9/makemkv-oss-1.10.9/libffabi/src/dcadec/fixed_math.h
+--- makemkv-1.10.9.old/makemkv-oss-1.10.9/libffabi/src/dcadec/fixed_math.h	2018-01-12 23:58:06.118710500 +0800
++++ makemkv-1.10.9/makemkv-oss-1.10.9/libffabi/src/dcadec/fixed_math.h	2018-01-18 17:22:42.553710500 +0800
+@@ -18,7 +18,13 @@
+ 
+ #ifndef FIXED_MATH_H
+ #define FIXED_MATH_H
+-
++#ifndef INT64_C
++# if __WORDSIZE == 64
++#  define INT64_C(c)    c ## L
++# else
++#  define INT64_C(c)    c ## LL
++# endif
++#endif
+ static inline int64_t round__(int64_t a, int bits)
+ {
+     if (bits > 0)
