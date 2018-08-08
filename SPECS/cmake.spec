@@ -77,6 +77,7 @@ BuildRequires:  expat-devel
 BuildRequires:  libarchive-devel
 BuildRequires:  zlib-devel
 BuildRequires:  emacs
+BuildRequires:  rhash-devel
 %if %{without bootstrap}
 #BuildRequires: xmlrpc-c-devel
 %endif
